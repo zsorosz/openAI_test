@@ -5,8 +5,34 @@ function App() {
   const [tweet, setTweet] = useState("");
   const [sentiment, setSentiment] = useState("");
 
-  function callOpenAIAPI() {
+  const API_KEY = import.meta.env.VITE_OPENAI_KEY;
+
+  async function callOpenAIAPI() {
     console.log("Calling the OpenAI API");
+    const APIBody = {
+      model: "text-davinci-003",
+      prompt: "What is the sentiment of this tweet?" + tweet,
+      temperature: 0,
+      max_tokens: 60,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+    };
+    await fetch("https://api.openai.com/v1/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + API_KEY,
+      },
+      body: JSON.stringify(APIBody),
+    })
+      .then((data) => {
+        return data.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setSentiment(data.choices[0].text.trim());
+      });
   }
   console.log(tweet);
   return (
